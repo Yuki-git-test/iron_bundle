@@ -130,19 +130,23 @@ async def multi_add_item_func(
                 content=f"⚠️ Failed to add item '{item_name}' to box '{box_name}'."
             )
             return
-    # Update stock of the box itself to reflect the new items added
+    # Update stock of the box itself to reflect the new items added (sum all item stocks in the box)
     try:
+        # Fetch all prizes in the box and sum their stock
+        from utils.db.box_prize_db import fetch_box_prizes
+
+        all_prizes = await fetch_box_prizes(bot, box_name=box_name)
+        total_stock = sum(prize.get("stock", 1) for prize in all_prizes.values())
+
         existing_box = await fetch_item_by_name(bot, item_name=box_name)
         box_id = existing_box.get("item_id")
-        old_stock = existing_box.get("stock", 0)
-        new_stock = old_stock + len(items_to_add)
-        await update_stock(bot=bot, item_id=box_id, stock=new_stock)
+        await update_stock(bot=bot, item_id=box_id, stock=total_stock)
 
         # Success embed
         desc = (
             f"**Box Name:** {box_name}\n"
             f"**Items Added:** {', '.join(items_to_add)}\n"
-            f"**Total Items in Box:** {new_stock}\n"
+            f"**Total Items in Box:** {total_stock}\n"
         )
         embed = discord.Embed(
             title=f"Items Added to {box_name}!",

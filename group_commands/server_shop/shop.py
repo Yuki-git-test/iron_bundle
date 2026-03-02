@@ -14,7 +14,7 @@ from constants.server_shop import (
 from constants.vn_allstars_constants import DEVS, VNA_SERVER_ID
 from utils.cache.cache_list import server_shop_cache
 from utils.cache.global_variables import Testing
-from utils.db.server_shop import fetch_all_items
+from utils.db.server_shop import fetch_all_items, fetch_total_shop_items
 from utils.functions.pokemon_func import get_dex_number_by_name, get_display_name
 from utils.logs.pretty_log import pretty_log
 from utils.visuals.pretty_defer import pretty_defer
@@ -84,8 +84,13 @@ class Shop_Paginator(View):
         end = start + self.per_page
         page_items = self.items[start:end]
 
+        total_items = await fetch_total_shop_items(self.bot)
+
         title = SERVER_SHOP_NAME
         embed = discord.Embed(title=title, color=COLOR, timestamp=datetime.now())
+        footer_text = f"Total Items: {total_items} | Page {self.page + 1} of {self.max_page + 1}"
+        guild = self.bot.get_guild(VNA_SERVER_ID)
+        embed.set_footer(text=footer_text, icon_url=guild.icon.url if guild and guild.icon else None)
         embed.set_image(url=DIVIDER)
         for idx, item in enumerate(page_items):
             number = idx + 1 + start

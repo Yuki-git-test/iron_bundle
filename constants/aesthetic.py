@@ -20,6 +20,9 @@ class Thumbnails:
     pong = "https://media.discordapp.net/attachments/1459004743295963206/1465904445769519175/image.png?ex=697acd67&is=69797be7&hm=0aad575babbe5a28d963f311b9343eb72bc033533d3963560c3116095b22bdba&=&format=webp&quality=lossless"
     trophy = "https://media.discordapp.net/attachments/1394913073520967680/1446779819919540365/image.png?ex=69353a34&is=6933e8b4&hm=8e3653f39c661402105bd07c9ad39e3758ba37b92c765b73d61d8d149ce3a52b&=&format=webp&quality=lossless"
     ghouldengo = "https://media.discordapp.net/attachments/1459004743295963206/1472877578183377001/f33845a4d6c42fec330787cfa81e249e-removebg-preview.png?ex=69942ba3&is=6992da23&hm=a6333d29b1322ef505c5f7a1e7f5c5531c826061466ee6c5f979942e2c2d5013&=&format=webp&quality=lossless&width=432&height=507"
-
+    blue_gift = "https://media.discordapp.net/attachments/1459004743295963206/1478169464850874581/image.png?ex=69a76c17&is=69a61a97&hm=7767382c151b3db14e2e76cd3c29a780c08f55c68a7955e78353646005523e28&=&format=webp&quality=lossless"
+    snowglobe = "https://media.discordapp.net/attachments/1459004743295963206/1478169753343361164/image.png?ex=69a76c5c&is=69a61adc&hm=89537b4c21ae039cb69d5a035b37f5d197a0642149757239b2a708823b489df5&=&format=webp&quality=lossless"
+    penguin = "https://media.discordapp.net/attachments/1459004743295963206/1478170074987761848/image.png?ex=69a76ca8&is=69a61b28&hm=825700077fda14aff6117ddf9b345129d32d0ac4aa4d5ac399dcea0b3a87b062&=&format=webp&quality=lossless"
 class Dividers:
     yellow_stars = "https://images-ext-1.discordapp.net/external/lXFJDNuP3LS-9S9cZJxyBMHNBdfTO6C-JflfXTtn7zs/https/64.media.tumblr.com/d727b8495e97e56227d7c0731d224b95/1650e0230bea73c6-47/s1280x1920/7f4826ae2fc2438d2e547f155c7c6a56118094db.pnj?format=webp&width=1200&height=75"
+    snowflake = "https://media.discordapp.net/attachments/1459004743295963206/1478169003120922685/image.png?ex=69a76ba9&is=69a61a29&hm=d73c734a0e7e171da6bebbb3e104485e73308da0f334162c44540a93875d2728&=&format=webp&quality=lossless&width=1862&height=112"

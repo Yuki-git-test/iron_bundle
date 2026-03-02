@@ -8,7 +8,11 @@ from discord.ext import commands
 from constants.server_shop import COLOR, SERVER_CURRENCY_EMOJI
 from constants.vn_allstars_constants import VN_ALLSTARS_TEXT_CHANNELS
 from utils.cache.global_variables import Testing
-from utils.db.box_prize_db import add_box_prize, fetch_box_prize
+from utils.db.box_prize_db import (
+    add_box_prize,
+    fetch_box_prize,
+    fetch_box_prize_with_box,
+)
 from utils.db.server_shop import fetch_item_by_name, update_stock, upsert_item
 from utils.functions.pokemon_func import get_dex_number_by_name, get_display_name
 from utils.functions.webhook_func import send_webhook
@@ -122,7 +126,9 @@ async def add_item_func(
             await update_stock(bot=bot, item_id=box_id, stock=new_stock)
 
         # Fetch current stock for this item in the box
-        existing_prize = await fetch_box_prize(bot, box_name=box_name, prize=item_name)
+        existing_prize = await fetch_box_prize_with_box(
+            bot, box_name=box_name, prize=item_name
+        )
         if existing_prize:
             current_item_stock = existing_prize.get("stock", 0)
             new_item_stock = current_item_stock + amount
@@ -162,4 +168,4 @@ async def add_item_func(
     # Send webhook notification
     log_channel = interaction.guild.get_channel(VN_ALLSTARS_TEXT_CHANNELS.server_log)
     await log_event(bot=bot, embed=embed, channel=log_channel, context="add_item")
-    await log_event(bot=bot, embed=embed, channel=log_channel, context="add_item")
+

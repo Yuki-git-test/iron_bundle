@@ -57,6 +57,29 @@ async def fetch_all_box_names(bot) -> list:
         return []
 
 
+async def fetch_total_shop_items(bot) -> int:
+    """Fetch the total number of items in the server shop."""
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT SUM(stock) AS total_stock FROM server_shop;"
+            )
+            total = row["total_stock"] if row and row["total_stock"] is not None else 0
+            pretty_log(
+                tag="db",
+                message=f"Total stock in server shop: {total}",
+                label="🛒 SERVER SHOP",
+            )
+            return total
+    except Exception as e:
+        pretty_log(
+            tag="warn",
+            message=f"⚠️ Failed to fetch total shop items: {e}",
+            label="🛒 SERVER SHOP",
+        )
+        return 0
+
+
 async def shop_item_autocomplete(
     interaction: discord.Interaction, current: str
 ) -> List[discord.app_commands.Choice[str]]:

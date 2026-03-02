@@ -147,7 +147,6 @@ async def on_ready():
     else:
         pretty_log("info", f"Bot online as {user} (ID: {user.id})")
 
-
     # Sync commands to VNA server
     try:
         await bot.tree.sync(guild=discord.Object(id=VNA_SERVER_ID))
@@ -168,12 +167,10 @@ async def on_ready():
     # ❀ Run startup checklist ❀
     await startup_checklist(bot)
 
-"""    try:
-        await bot.change_presence(
-            activity=discord.Game(name="/ghouldengo list • /ghouldengo bid")
-        )
+    try:
+        await bot.change_presence(activity=discord.Game(name="🐧 /commands"))
     except Exception:
-        pass"""
+        pass
 
 
 # 🟣────────────────────────────────────────────

@@ -21,7 +21,7 @@ from utils.visuals.design_embed import design_embed
 from utils.visuals.get_pokemon_gif import get_pokemon_gif
 from utils.visuals.pretty_defer import pretty_defer
 
-#enable_debug(f"{__name__}.list_item_func")
+# enable_debug(f"{__name__}.list_item_func")
 
 
 def strip_emoji(item_name):
@@ -141,6 +141,7 @@ async def list_item_func(
         description="Here are the items currently in the boxes:",
         color=COLOR,
     )
+    total_all = sum(box_item_counts.values())
     for box_name, categories in categorized_boxes.items():
         count = box_item_counts.get(box_name, 0)
         field_name = f"**{box_name} ({count})**"
@@ -195,4 +196,5 @@ async def list_item_func(
             )
         )
         embed.add_field(name=field_name, value=field_value, inline=False)
+    embed.set_footer(text=f"Total number of all items: {total_all}")
     await loader.success(content="", embed=embed)

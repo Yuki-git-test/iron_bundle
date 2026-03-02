@@ -63,7 +63,7 @@ async def add_item_func(
     amount: int = 1,
 ):
     """Add an item to a box in the database."""
-    stock = amount  # Default stock for box items is always 1
+    stock = amount  # Stock to add for this item
     # Defer the response
     loader = await pretty_defer(
         interaction=interaction,
@@ -94,7 +94,7 @@ async def add_item_func(
                     bot=bot,
                     item_name=box_name,
                     price=10000,
-                    stock=1,
+                    stock=0,
                     image_link=None,
                     description=None,
                     dex=None,
@@ -118,14 +118,21 @@ async def add_item_func(
             # Update stock of the box if it already exists
             box_id = existing_box.get("item_id")
             old_stock = existing_box.get("stock", 0)
-            new_stock = old_stock + 1
+            new_stock = old_stock + amount
             await update_stock(bot=bot, item_id=box_id, stock=new_stock)
 
+        # Fetch current stock for this item in the box
+        existing_prize = await fetch_box_prize(bot, box_name=box_name, prize=item_name)
+        if existing_prize:
+            current_item_stock = existing_prize.get("stock", 0)
+            new_item_stock = current_item_stock + amount
+        else:
+            new_item_stock = amount
         await add_box_prize(
             bot=bot,
             prize=item_name,
             box_name=box_name,
-            stock=stock,
+            stock=new_item_stock,
             dex=dex,
             image_link=image_link,
         )
@@ -154,4 +161,5 @@ async def add_item_func(
     await loader.success(content="", embed=embed)
     # Send webhook notification
     log_channel = interaction.guild.get_channel(VN_ALLSTARS_TEXT_CHANNELS.server_log)
+    await log_event(bot=bot, embed=embed, channel=log_channel, context="add_item")
     await log_event(bot=bot, embed=embed, channel=log_channel, context="add_item")

@@ -90,6 +90,76 @@ class Box_Group(commands.Cog):
     add_box_item.extras = {"category": "Staff"}
 
     # 🪻────────────────────────────────────────────
+    #           ✨ /box multi-add-item✨
+    # 🪻────────────────────────────────────────────
+    @box_group.command(name="multi-add-item", description="Add multiple items to the box at once")
+    @app_commands.describe(
+        box_name="Name of the box to add the items to",
+        item_1="Name of the first item to add",
+        item_2="Name of the second item to add (optional)",
+        item_3="Name of the third item to add (optional)",
+        item_4="Name of the fourth item to add (optional)",
+        item_5="Name of the fifth item to add (optional)",
+        item_6="Name of the sixth item to add (optional)",
+        item_7="Name of the seventh item to add (optional)",
+        item_8="Name of the eighth item to add (optional)",
+        item_9="Name of the ninth item to add (optional)",
+        item_10="Name of the tenth item to add (optional)",
+    )
+    @app_commands.autocomplete(box_name=box_item_autocomplete)  # 👈 attach
+    @app_commands.autocomplete(item_1=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_2=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_3=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_4=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_5=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_6=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_7=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_8=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_9=pokemon_autocomplete)  # 👈 attach autocomplete
+    @app_commands.autocomplete(item_10=pokemon_autocomplete)  # 👈 attach autocomplete
+    @admin_only()
+    async def multi_add_box_items(
+        self,
+        interaction: discord.Interaction,
+        box_name: str,
+        item_1: str,
+        item_2: str = None,
+        item_3: str = None,
+        item_4: str = None,
+        item_5: str = None,
+        item_6: str = None,
+        item_7: str = None,
+        item_8: str = None,
+        item_9: str = None,
+        item_10: str = None,
+    ):
+        slash_cmd_name = "box multi-add-item"
+        try:
+            await run_command_safe(
+                bot=self.bot,
+                interaction=interaction,
+                slash_cmd_name=slash_cmd_name,
+                command_func=multi_add_item_func,
+                box_name=box_name,
+                item_1=item_1,
+                item_2=item_2,
+                item_3=item_3,
+                item_4=item_4,
+                item_5=item_5,
+                item_6=item_6,
+                item_7=item_7,
+                item_8=item_8,
+                item_9=item_9,
+                item_10=item_10,
+            )
+        except Exception as e:
+            pretty_log(
+                "error",
+                f"Error in /box multi-add-item command: {e}",
+            )
+    multi_add_box_items.extras = {"category": "Staff"}
+    
+    # 🪻────────────────────────────────────────────
     #           ✨ /box remove-item✨
     # 🪻────────────────────────────────────────────
     @box_group.command(name="remove-item", description="Remove an item from the box")

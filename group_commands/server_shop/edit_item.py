@@ -101,5 +101,3 @@ async def edit_item_func(
     log_channel = guild.get_channel(log_channel_id)
     if log_channel:
         await log_channel.send(embed=embed)
-
-        await log_channel.send(embed=embed)

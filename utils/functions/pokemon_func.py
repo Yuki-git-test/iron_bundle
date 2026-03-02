@@ -88,16 +88,16 @@ def get_display_name(
     # Strip prefixes for display name to avoid clutter (e.g., "Shiny", "Mega", etc.)
     stripped_name = strip_prefixes(pokemon_name)
 
-    if rarity in RARITY_W_LONG_NAME or is_long_name:
-        is_long_name = True
-    else:
-        is_long_name = False
-
+    # If user explicitly sets is_long_name, respect it. Otherwise, always use short name (no prefix)
     if is_long_name:
         formatted_name = pokemon_name.title()
     else:
-        formatted_name = stripped_name.title()
-
+        # Always use stripped name for short display
+        dash_o_name_list = ["jangmo-o", "hakamo-o", "kommo-o"]
+        if stripped_name.lower() in dash_o_name_list:
+            formatted_name = stripped_name[0].upper() + stripped_name[1:].lower()
+        else:
+            formatted_name = stripped_name.title()
     display_name = f"{rarity_emoji} {formatted_name}".strip()
 
     if dex:
@@ -127,14 +127,13 @@ def is_mon_exclusive(pokemon: str) -> bool:
         return False
 
 
-enable_debug(f"{__name__}.get_rarity")
+#enable_debug(f"{__name__}.get_rarity")
 
 
 def get_rarity(pokemon: str):
     """Determines the rarity of a given Pokemon based on the name"""
 
     name = pokemon.lower()
-    pretty_log("info", f"Determining rarity for: {pokemon}")
     debug_log(f"Checking rarity for: {name}")
     if "golden" in name:
         debug_log(f"Matched 'golden' in name: {name}")

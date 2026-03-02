@@ -43,3 +43,10 @@ server_shop_cache: dict[int, dict] = {}
 #   },
 #   ...
 # }
+
+box_names_cache = set()
+# Structure:
+# {
+#   "box_name_1",
+#   "box_name_2",
+#   ...1 

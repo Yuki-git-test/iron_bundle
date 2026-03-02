@@ -106,6 +106,7 @@ class ServerShop(commands.Cog):
         item_name="Name of the item to edit",
         new_price="New price for the item in Cherry Pins",
         new_stock="New stock for the item (-1 for unlimited)",
+        new_image_link="New image link for the item (must be a direct link to an image)",
     )
     @admin_only()
     async def edit_shop_item(
@@ -114,6 +115,7 @@ class ServerShop(commands.Cog):
         item_name: str,
         new_price: int = None,
         new_stock: int = None,
+        new_image_link: str = None,
     ):
         slash_cmd_name = "shop edit-item"
 
@@ -125,6 +127,7 @@ class ServerShop(commands.Cog):
             item_name=item_name,
             new_price=new_price,
             new_stock=new_stock,
+            new_image_link=new_image_link,
         )
 
     edit_shop_item.extras = {"category": "Staff"}

@@ -1,5 +1,5 @@
-from utils.cache.cache_list import server_shop_cache
-from utils.db.server_shop import fetch_all_items
+from utils.cache.cache_list import server_shop_cache, box_names_cache
+from utils.db.server_shop import fetch_all_items, fetch_all_box_names
 from utils.logs.pretty_log import pretty_log
 
 
@@ -23,7 +23,12 @@ async def load_server_shop_cache(bot):
             "description": row.get("description"),
             "dex": row.get("dex"),
         }
-
+    # Load box names into separate cache for quick access
+    box_names_cache.clear()
+    box_names = await fetch_all_box_names(bot)
+    for box_name in box_names:
+        box_names_cache.add(box_name)
+        
     pretty_log(
         tag="",
         label="🛒 SERVER SHOP CACHE",
@@ -143,4 +148,4 @@ def fetch_all_box_items() -> dict[str, dict]:
         if "box" in item.get("item_name", "").lower():
             box_items[item_id] = item
     return box_items
-    return box_items
+

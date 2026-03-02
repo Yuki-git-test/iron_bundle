@@ -1,3 +1,4 @@
+# Async function to fetch all unique box names from box_prizes table
 import random
 import string
 from typing import List
@@ -23,32 +24,37 @@ async def box_item_autocomplete(
     Choice.value = "item_name"
     Matches both names and item IDs.
     """
-    from utils.cache.server_shop_cache import fetch_all_box_items
+    from utils.cache.cache_list import box_names_cache
 
-    try:
-        items = fetch_all_box_items()
-    except Exception as e:
-        pretty_log(
-            tag="warn",
-            message=f"⚠️ Failed to fetch box items from cache: {e}",
-            label="🛒 SERVER SHOP",
-        )
-        items = {}
     current = (current or "").lower().strip()
     results: List[discord.app_commands.Choice[str]] = []
-    for item_id, item in items.items():
-        item_name = str(item.get("item_name", "Unnamed Item"))
-        if (
-            not current
-            or current in item_name.lower()
-            or current in str(item_id).lower()
-        ):
-            results.append(discord.app_commands.Choice(name=item_name, value=item_name))
+    for box_name in box_names_cache:
+        if not current or current in box_name.lower():
+            results.append(
+                discord.app_commands.Choice(name=box_name.title(), value=box_name)
+            )
         if len(results) >= 25:
             break
     if not results:
         results.append(discord.app_commands.Choice(name="No matches found", value=""))
     return results
+
+
+async def fetch_all_box_names(bot) -> list:
+    """Fetch all unique box names from the box_prizes table."""
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            rows = await conn.fetch("SELECT DISTINCT box_name FROM box_prizes;")
+            return [row["box_name"] for row in rows]
+    except Exception as e:
+        from utils.logs.pretty_log import pretty_log
+
+        pretty_log(
+            tag="warn",
+            message=f"⚠️ Failed to fetch box names: {e}",
+            label="🎁 BOX PRIZE DB",
+        )
+        return []
 
 
 async def shop_item_autocomplete(
@@ -423,4 +429,5 @@ async def fetch_item_by_name(bot: discord.Client, item_name: str):
             message=f"⚠️ Failed to fetch item '{item_name}': {e}",
             label="🛒 SERVER SHOP",
         )
+        return None
         return None

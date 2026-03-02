@@ -148,7 +148,7 @@ async def pokemon_autocomplete(
         # Match by name
         if not current_simple or current_simple in norm:
             display_name = format_display_name(name)
-            display = f"{display_name} #{dex}"
+            display = f"{display_name.title()} #{dex}"
             if display not in seen:
                 results.append(app_commands.Choice(name=display, value=name))
                 seen.add(display)
@@ -156,7 +156,7 @@ async def pokemon_autocomplete(
         # Match by dex number
         if dex_query is not None and dex_query == dex:
             display_name = format_display_name(name)
-            display = f"{display_name} #{dex}"
+            display = f"{display_name.title()} #{dex}"
             if display not in seen:
                 results.append(app_commands.Choice(name=display, value=name))
                 seen.add(display)

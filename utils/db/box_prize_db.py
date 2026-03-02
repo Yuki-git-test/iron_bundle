@@ -16,6 +16,26 @@ from utils.logs.pretty_log import pretty_log
 );"""
 
 
+# Fetch the total stock for a given box (sum of all stock values for that box)
+async def fetch_total_stock_for_box(bot: discord.Client, box_name: str) -> int:
+    """Fetch the total stock for a given box by summing the stock column for all prizes in that box."""
+    total_stock = 0
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            rows = await conn.fetch(
+                "SELECT stock FROM box_prizes WHERE box_name = $1;",
+                box_name,
+            )
+            total_stock = sum(row["stock"] for row in rows)
+    except Exception as e:
+        pretty_log(
+            tag="warn",
+            message=f"⚠️ Failed to fetch total stock for box '{box_name}': {e}",
+            label="🎁 BOX PRIZE DB",
+        )
+    return total_stock
+
+
 async def fetch_all_box_names(bot: discord.Client) -> list[str]:
     """Fetch all distinct box names from the database."""
     box_names = []

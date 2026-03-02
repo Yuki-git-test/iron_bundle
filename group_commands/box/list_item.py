@@ -7,15 +7,21 @@ from discord.ext import commands
 
 from constants.server_shop import COLOR
 from constants.vn_allstars_constants import VN_ALLSTARS_EMOJIS
-from utils.db.box_prize_db import (add_box_prize, fetch_all_box_prizes,
-                                   fetch_box_prize)
-from utils.functions.pokemon_func import (get_dex_number_by_name,
-                                          get_display_name)
+from utils.db.box_prize_db import (
+    add_box_prize,
+    fetch_all_box_prizes,
+    fetch_box_prize,
+    fetch_total_stock_for_box,
+)
+from utils.functions.pokemon_func import get_dex_number_by_name, get_display_name
 from utils.functions.webhook_func import send_webhook
+from utils.logs.debug_log import debug_log, enable_debug
 from utils.logs.pretty_log import pretty_log
 from utils.visuals.design_embed import design_embed
 from utils.visuals.get_pokemon_gif import get_pokemon_gif
 from utils.visuals.pretty_defer import pretty_defer
+
+#enable_debug(f"{__name__}.list_item_func")
 
 
 def strip_emoji(item_name):
@@ -38,6 +44,7 @@ async def list_item_func(
     )
 
     # Fetch all box prizes from the database
+    debug_log(f"Fetching all box prizes from the database...")
     box_prizes = await fetch_all_box_prizes(bot)
     if not box_prizes:
         await loader.error(content="No items found in any box.")
@@ -45,37 +52,83 @@ async def list_item_func(
 
     # Create dict for each box with list of items categorized by type (golden, shiny, legendary)
     categorized_boxes = {}
-    from collections import Counter
-    def format_counted_list(item_list):
-        counts = Counter(item_list)
-        return [f"{count} {name}" if count > 1 else name for name, count in counts.items()]
+
+    def format_stocked_list(prizes_dict, filter_func):
+        result = []
+        for prize_name, prize_info in prizes_dict.items():
+            item_name = get_display_name(prize_name, is_long_name=False)
+            item_name_no_emoji = strip_emoji(item_name)
+            # Use the raw prize_name for filtering, not the formatted name
+            if filter_func(prize_name):
+                stock = prize_info.get("stock", 1)
+                if stock and stock > 1:
+                    result.append(f"{stock} {item_name_no_emoji}")
+                else:
+                    result.append(item_name_no_emoji)
+        return result
+
+    box_item_counts = {}
+    from utils.db.box_prize_db import fetch_total_stock_for_box
 
     for box_name, prizes in box_prizes.items():
-        golden_list = []
-        shiny_list = []
-        gigantamax_list = []
-        shiny_gigantamax_list = []
-        legendary_list = []
-        for prize_name, prize_info in prizes.items():
-            item_name = get_display_name(prize_name)
-            item_name_no_emoji = strip_emoji(item_name)
-            if "golden" in item_name.lower():
-                golden_list.append(item_name_no_emoji)
-            if "shiny gigantamax" in item_name.lower():
-                shiny_gigantamax_list.append(item_name_no_emoji)
-            elif "gigantamax" in item_name.lower():
-                gigantamax_list.append(item_name_no_emoji)
-            elif "shiny" in item_name.lower():
-                shiny_list.append(item_name_no_emoji)
-            elif "legendary" in item_name.lower():
-                legendary_list.append(item_name_no_emoji)
+        debug_log(f"Box: {box_name} | prizes: {prizes}")
+        # Fetch DB total for this box for debugging
+        db_total = await fetch_total_stock_for_box(bot, box_name)
+        debug_log(f"Box: {box_name} | DB total stock: {db_total}")
+        already_categorized = set()
+
+        def format_stocked_list_unique(prizes_dict, filter_func):
+            result = []
+            for prize_name, prize_info in prizes_dict.items():
+                if prize_name in already_categorized:
+                    continue
+                item_name = get_display_name(prize_name, is_long_name=False)
+                item_name_no_emoji = strip_emoji(item_name)
+                if filter_func(prize_name):
+                    stock = prize_info.get("stock", 1)
+                    if stock and stock > 1:
+                        result.append(f"{stock} {item_name_no_emoji}")
+                    else:
+                        result.append(item_name_no_emoji)
+                    already_categorized.add(prize_name)
+            return result
+
         categorized_boxes[box_name] = {
-            "golden": format_counted_list(golden_list),
-            "shiny gigantamax": format_counted_list(shiny_gigantamax_list),
-            "shiny": format_counted_list(shiny_list),
-            "gigantamax": format_counted_list(gigantamax_list),
-            "legendary": format_counted_list(legendary_list),
+            "golden": format_stocked_list_unique(
+                prizes, lambda n: "golden" in n.lower()
+            ),
+            "shiny gigantamax": format_stocked_list_unique(
+                prizes, lambda n: "shiny gigantamax" in n.lower()
+            ),
+            "shiny mega": format_stocked_list_unique(
+                prizes, lambda n: "shiny mega" in n.lower()
+            ),
+            "shiny": format_stocked_list_unique(
+                prizes,
+                lambda n: "shiny" in n.lower()
+                and "gigantamax" not in n.lower()
+                and "mega" not in n.lower(),
+            ),
+            "gigantamax": format_stocked_list_unique(
+                prizes,
+                lambda n: "gigantamax" in n.lower() and "shiny" not in n.lower(),
+            ),
+            "mega": format_stocked_list_unique(
+                prizes,
+                lambda n: "mega" in n.lower() and "shiny" not in n.lower(),
+            ),
+            # Fallback: anything not already categorized
+            "legendary": format_stocked_list_unique(
+                prizes,
+                lambda n: n not in already_categorized,
+            ),
         }
+        # Always count the total number of items in the box (sum of all stocks, including multiples)
+        total_stock = sum(prize_info.get("stock", 1) for prize_info in prizes.values())
+        debug_log(f"Box: {box_name} | Computed total stock: {total_stock}")
+        for pname, pinfo in prizes.items():
+            debug_log(f"  {pname}: stock={pinfo.get('stock', 1)}")
+        box_item_counts[box_name] = total_stock
     # Now categorized_boxes is in the format:
     # {
     #   'box_1': {'golden': [...], 'shiny': [...], 'legendary': [...]},
@@ -89,15 +142,20 @@ async def list_item_func(
         color=COLOR,
     )
     for box_name, categories in categorized_boxes.items():
-        field_name = f"**{box_name}**"
+        count = box_item_counts.get(box_name, 0)
+        field_name = f"**{box_name} ({count})**"
         legendary_mons_str = (
             f"{VN_ALLSTARS_EMOJIS.vna_legendary}" + (", ".join(categories["legendary"]))
             if categories["legendary"]
             else ""
         )
+        mega_mons_str = (
+            f"{VN_ALLSTARS_EMOJIS.mega}" + (", ".join(categories["mega"]))
+            if categories["mega"]
+            else ""
+        )
         gigantamax_mons_str = (
-            f"{VN_ALLSTARS_EMOJIS.vna_gmax}"
-            + (", ".join(categories["gigantamax"]))
+            f"{VN_ALLSTARS_EMOJIS.vna_gmax}" + (", ".join(categories["gigantamax"]))
             if categories["gigantamax"]
             else ""
         )
@@ -106,8 +164,13 @@ async def list_item_func(
             if categories["shiny"]
             else ""
         )
+        shiny_mega_mons_str = (
+            f"{VN_ALLSTARS_EMOJIS.vna_smega}" + (", ".join(categories["shiny mega"]))
+            if categories["shiny mega"]
+            else ""
+        )
         shiny_gigantamax_mons_str = (
-            f"{VN_ALLSTARS_EMOJIS.vna_shiny_gmax}"
+            f"{VN_ALLSTARS_EMOJIS.vna_shinygmax}"
             + (", ".join(categories["shiny gigantamax"]))
             if categories["shiny gigantamax"]
             else ""
@@ -123,8 +186,10 @@ async def list_item_func(
                 [
                     golden_mons_str,
                     shiny_gigantamax_mons_str,
+                    shiny_mega_mons_str,
                     shiny_mons_str,
                     gigantamax_mons_str,
+                    mega_mons_str,
                     legendary_mons_str,
                 ],
             )

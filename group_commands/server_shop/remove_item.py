@@ -9,6 +9,7 @@ from constants.vn_allstars_constants import VN_ALLSTARS_TEXT_CHANNELS
 from group_commands.box.add_item import log_event
 from utils.cache.cache_list import server_shop_cache
 from utils.db.server_shop import fetch_item_by_id, remove_all_items, remove_item
+from utils.db.box_prize_db import fetch_all_box_names, clear_box_prizes
 from utils.functions.pokemon_func import get_dex_number_by_name, get_display_name
 from utils.logs.pretty_log import pretty_log
 from utils.visuals.pretty_defer import pretty_defer
@@ -44,7 +45,15 @@ async def remove_item_func(
     item_name = existing_item.get("item_name", "Unknown Item")
     item_name = get_display_name(item_name, dex=True)
 
-    # Remove item from the database
+    is_box = False
+    # Check if item is a box
+    box_names = await fetch_all_box_names(bot)
+    if item_name in box_names:
+        is_box = True
+
+    if is_box:
+        # Remove all box prizes associated with this box item
+        await clear_box_prizes(bot, item_id)
     await remove_item(bot, item_id)
 
     # Success embed

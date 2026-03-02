@@ -225,12 +225,13 @@ class CommandsView(commands.Cog):
     async def commands(self, interaction: discord.Interaction):
         try:
             await interaction.response.defer(thinking=True)
-
+            guild = self.bot.get_guild(VNA_SERVER_ID)
             user = interaction.user
+            guild_obj = discord.Object(id=VNA_SERVER_ID)
 
             # Staff check
             # Flatten commands
-            all_commands = flatten_commands(self.bot.tree.get_commands())
+            all_commands = flatten_commands(self.bot.tree.get_commands(guild=guild_obj))
             command_map = {"Public": [], "Staff": []}
 
             for cmd in all_commands:

@@ -95,7 +95,7 @@ async def buy_item_func(
     Buy an item from the server shop.
     """
     # Check if event is active or khy is buying for testing
-    if not Testing.box_prize and interaction.user.id not in DEVS:
+    if Testing.box_prize and interaction.user.id not in DEVS:
         content = "The server shop is currently unavailable. Please check back later."
         await interaction.response.send_message(content=content, ephemeral=True)
         pretty_log(

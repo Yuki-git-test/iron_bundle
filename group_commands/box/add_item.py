@@ -26,7 +26,7 @@ async def log_event(
     bot, embed: discord.Embed, channel: discord.TextChannel, context: str = "log_event"
 ):
     """Log event changes to the designated log channel via webhook if logging is enabled."""
-    if not Testing.box_prize:
+    if Testing.box_prize:
         pretty_log(
             tag="debug",
             message="Event logging is currently disabled. Skipping log.",

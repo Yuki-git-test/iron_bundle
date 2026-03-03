@@ -3,36 +3,34 @@ import re
 from datetime import datetime
 
 import discord
-
-from constants.vn_allstars_constants import VN_ALLSTARS_ROLES, KHY_USER_ID, VN_ALLSTARS_TEXT_CHANNELS
 from discord import app_commands
 from discord.ext import commands
-from utils.db.box_prize_db import (
-    add_box_prize,
-    fetch_box_prizes,
-    remove_box_prize,
-)
-from utils.db.trophy import (
-    fetch_user_trophies,
-    update_trophies
-)
-from utils.visuals.design_embed import design_embed
-from utils.functions.webhook_func import send_webhook
+
 from constants.server_shop import (
     COLOR,
     DIVIDER,
     SERVER_CURRENCY_EMOJI,
     SERVER_CURRENCY_NAME,
 )
+from constants.vn_allstars_constants import (
+    DEVS,
+    KHY_USER_ID,
+    VN_ALLSTARS_ROLES,
+    VN_ALLSTARS_TEXT_CHANNELS,
+)
 from group_commands.box.add_item import log_event
 from utils.cache.cache_list import processing_box_item, server_shop_cache
+from utils.cache.global_variables import Testing
+from utils.db.box_prize_db import add_box_prize, fetch_box_prizes, remove_box_prize
 from utils.db.server_shop import remove_item, update_stock
+from utils.db.trophy import fetch_user_trophies, update_trophies
 from utils.functions.pokemon_func import get_dex_number_by_name, get_display_name
+from utils.functions.webhook_func import send_webhook
 from utils.logs.pretty_log import pretty_log
+from utils.visuals.design_embed import design_embed
 from utils.visuals.get_pokemon_gif import get_pokemon_gif
 from utils.visuals.pretty_defer import pretty_defer
-from constants.vn_allstars_constants import DEVS
-from utils.cache.global_variables import Testing
+
 
 async def open_box_func(
     bot: discord.Client,
@@ -132,8 +130,10 @@ async def buy_item_func(
     user = interaction.user
     user_id = interaction.user.id
     user_name = interaction.user.name
-    user_balance = await fetch_user_trophies(bot, user=interaction.user)
-    if not user_balance:
+    user_balance_record = await fetch_user_trophies(bot, user=interaction.user)
+    if user_balance_record and "amount" in user_balance_record:
+        user_balance = user_balance_record["amount"]
+    else:
         user_balance = 0
     guild = interaction.guild
 
@@ -177,7 +177,10 @@ async def buy_item_func(
 
     # Check if member has vna member role or is a dev
     vna_member_role = guild.get_role(VN_ALLSTARS_ROLES.vna_member)
-    if vna_member_role not in interaction.user.roles and interaction.user.id not in DEVS:
+    if (
+        vna_member_role not in interaction.user.roles
+        and interaction.user.id not in DEVS
+    ):
         await loader.error(
             content=(
                 f"You need to have the {vna_member_role.mention} role to purchase items from the server shop."

@@ -44,7 +44,10 @@ async def log_event(
     if channel.id == VN_ALLSTARS_TEXT_CHANNELS.gift_box:
         guild = channel.guild
         clan_event_log_channel = guild.get_channel(VN_ALLSTARS_TEXT_CHANNELS.gift_box)
-        log_channels = [channel, clan_event_log_channel]
+        if channel != clan_event_log_channel:
+            log_channels = [channel, clan_event_log_channel]
+        else:
+            log_channels = [channel]
         for log_channel in log_channels:
             await send_webhook(
                 channel=log_channel,
@@ -168,4 +171,3 @@ async def add_item_func(
     # Send webhook notification
     log_channel = interaction.guild.get_channel(VN_ALLSTARS_TEXT_CHANNELS.server_log)
     await log_event(bot=bot, embed=embed, channel=log_channel, context="add_item")
-

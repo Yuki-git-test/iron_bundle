@@ -19,7 +19,11 @@ from constants.vn_allstars_constants import (
     VN_ALLSTARS_TEXT_CHANNELS,
 )
 from group_commands.box.add_item import log_event
-from utils.cache.cache_list import processing_box_item, server_shop_cache
+from utils.cache.cache_list import (
+    box_names_cache,
+    processing_box_item,
+    server_shop_cache,
+)
 from utils.cache.global_variables import Testing
 from utils.db.box_prize_db import add_box_prize, fetch_box_prizes, remove_box_prize
 from utils.db.server_shop import remove_item, update_stock
@@ -141,7 +145,14 @@ async def buy_item_func(
         await loader.error(content="You must purchase at least 1 item.")
         return
 
-    purchased_box = True if "box" in item_name.lower() else False
+    purchased_box = item_name in box_names_cache
+    pretty_log(
+        tag="info",
+        message=(
+            f"User {user_name} (ID: {user_id}) is attempting to purchase {amount}x '{item_name}' (Box: {purchased_box}) for {price} each. ",
+            f"User balance: {user_balance}.",
+        ),
+    )
     if purchased_box and amount > 1:
         await loader.error(content="You can only purchase 1 box at a time.")
         return

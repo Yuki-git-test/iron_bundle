@@ -25,7 +25,7 @@ from utils.cache.cache_list import (
     server_shop_cache,
 )
 from utils.cache.global_variables import Testing
-from utils.db.box_prize_db import add_box_prize, fetch_box_prizes, remove_box_prize
+from utils.db.box_prize_db import add_box_prize, fetch_box_prizes, remove_box_prize, update_box_prize_stock
 from utils.db.server_shop import remove_item, update_stock
 from utils.db.trophy import fetch_user_trophies, update_trophies
 from utils.functions.pokemon_func import get_dex_number_by_name, get_display_name
@@ -60,16 +60,26 @@ async def open_box_func(
     prize_name = random.choice(list(prizes.keys()))
     prize_info = prizes[prize_name]
     image_link = prize_info.get("image_link")
+    prize_stock = prize_info.get("stock", 0)
 
     # Remove the prize from the box in the database
     if not testing:
         try:
-            await remove_box_prize(bot=bot, box_name=box_name, prize=prize_name)
-            pretty_log(
-                tag="info",
-                message=f"✅ Successfully removed prize '{prize_name}' from box '{box_name}' after opening.",
-                label="🎁 BOX PRIZE",
-            )
+            new_stock = prize_stock - 1
+            if new_stock > 0:
+                await update_box_prize_stock(bot=bot, box_name=box_name, prize=prize_name, new_stock=new_stock)
+                pretty_log(
+                    tag="info",
+                    message=f"✅ Decreased stock of prize '{prize_name}' in box '{box_name}' to {new_stock} after opening.",
+                    label="🎁 BOX PRIZE",
+                )
+            else:
+                await remove_box_prize(bot=bot, box_name=box_name, prize=prize_name)
+                pretty_log(
+                    tag="info",
+                    message=f"✅ Successfully removed prize '{prize_name}' from box '{box_name}' after opening.",
+                    label="🎁 BOX PRIZE",
+                )
         except Exception as e:
             pretty_log(
                 tag="error",

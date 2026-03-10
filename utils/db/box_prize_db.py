@@ -15,7 +15,29 @@ from utils.logs.pretty_log import pretty_log
     PRIMARY KEY (prize, box_name)
 );"""
 
-
+#Update box prize stock
+async def update_box_prize_stock(bot: discord.Client, prize: str, box_name: str, stock: int):
+    """Update the stock of a prize in a box."""
+    try:
+        async with bot.pg_pool.acquire() as conn:
+            await conn.execute(
+                "UPDATE box_prizes SET stock = $3 WHERE prize = $1 AND box_name = $2;",
+                prize,
+                box_name,
+                stock,
+            )
+            pretty_log(
+                tag="db",
+                message=f"Updated stock of prize '{prize}' in box '{box_name}' to {stock}.",
+                label="🎁 BOX PRIZE DB",
+            )
+    except Exception as e:
+        pretty_log(
+            tag="warn",
+            message=f"⚠️ Failed to update stock of prize '{prize}' in box '{box_name}': {e}",
+            label="🎁 BOX PRIZE DB",
+        )
+        
 # Fetch the total stock for a given box (sum of all stock values for that box)
 async def fetch_total_stock_for_box(bot: discord.Client, box_name: str) -> int:
     """Fetch the total stock for a given box by summing the stock column for all prizes in that box."""

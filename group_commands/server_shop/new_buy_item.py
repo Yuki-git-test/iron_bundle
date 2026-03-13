@@ -67,7 +67,7 @@ async def open_box_func(
         try:
             new_stock = prize_stock - 1
             if new_stock > 0:
-                await update_box_prize_stock(bot=bot, box_name=box_name, prize=prize_name, new_stock=new_stock)
+                await update_box_prize_stock(bot=bot, box_name=box_name, prize=prize_name, stock=new_stock)
                 pretty_log(
                     tag="info",
                     message=f"✅ Decreased stock of prize '{prize_name}' in box '{box_name}' to {new_stock} after opening.",

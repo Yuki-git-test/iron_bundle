@@ -5,7 +5,7 @@ from discord.ext import commands
 from group_commands.server_shop import *
 from utils.db.server_shop import shop_item_autocomplete
 from utils.essentials.command_safe import run_command_safe
-from utils.essentials.pokemon_autocomplete import *
+from utils.db.market_value_db import pokemon_autocomplete
 from utils.essentials.role_checks import *
 from utils.logs.pretty_log import pretty_log
 from constants.vn_allstars_constants import VNA_SERVER_ID
@@ -220,5 +220,3 @@ class ServerShop(commands.Cog):
 # ─────────────────────────────────────────────
 async def setup(bot: commands.Bot):
     await bot.add_cog(ServerShop(bot))
-
-

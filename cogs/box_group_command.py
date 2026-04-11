@@ -5,12 +5,11 @@ from discord.ext import commands
 from group_commands.box import *
 from utils.db.server_shop import box_item_autocomplete
 from utils.essentials.command_safe import run_command_safe
-from utils.essentials.pokemon_autocomplete import *
 from utils.essentials.role_checks import *
 from utils.logs.pretty_log import pretty_log
 from constants.vn_allstars_constants import VNA_SERVER_ID
 
-
+from utils.db.market_value_db import pokemon_autocomplete
 # 🪻────────────────────────────────────────────
 #           ✨ Box Cog Setup ✨
 # ─────────────────────────────────────────────
@@ -158,7 +157,7 @@ class Box_Group(commands.Cog):
                 f"Error in /box multi-add-item command: {e}",
             )
     multi_add_box_items.extras = {"category": "Staff"}
-    
+
     # 🪻────────────────────────────────────────────
     #           ✨ /box remove-item✨
     # 🪻────────────────────────────────────────────

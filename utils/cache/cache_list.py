@@ -26,7 +26,14 @@ vna_members_cache: dict[int, dict] = {}
 # }
 
 market_value_cache: dict[str, dict] = {}
-
+# 🧩────────────────────────────────────────────
+#        ⚡ Pokémon List Cache
+# 🧩────────────────────────────────────────────
+pokemon_list_cache: dict[str, int] = {}
+# Structure:
+# pokemon_list_cache = {
+#     "pokemon_name": "dex_number",
+#     }
 # 💜────────────────────────────────────────────
 #       🟣 Server Shop Cache 🌸
 # 💜────────────────────────────────────────────
@@ -49,4 +56,4 @@ box_names_cache = set()
 # {
 #   "box_name_1",
 #   "box_name_2",
-#   ...1 
+#   ...1
